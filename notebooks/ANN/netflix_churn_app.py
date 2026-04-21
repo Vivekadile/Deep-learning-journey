@@ -3,17 +3,17 @@ import numpy as np
 import joblib
 from tensorflow import keras
 
-# -------- LOAD MODEL & SCALER (same folder) --------
-model = keras.models.load_model("netflix_churn_model.h5")
+# -------- LOAD MODEL --------
+model = keras.models.load_model("netflix_churn_model.h5", compile=False)
 scaler = joblib.load("netflix_scaler.pkl")
 
 # -------- PAGE CONFIG --------
 st.set_page_config(page_title="Netflix Churn Predictor", layout="centered")
 
 st.title("🎬 Netflix Customer Churn Prediction")
-st.markdown("### Predict whether a customer is likely to churn")
+st.markdown("### Smart insights to prevent customer churn")
 
-st.divider()
+st.write("---")
 
 # -------- INPUT SECTION --------
 st.subheader("📋 Enter Customer Details")
@@ -33,7 +33,7 @@ with col2:
 # -------- ENCODING --------
 gender = 0 if gender == "Male" else 1
 
-# -------- DEFAULT VALUES (match training encoding) --------
+# -------- DEFAULT VALUES --------
 region = 1
 device = 2
 subscription = 1
@@ -41,12 +41,11 @@ payment = 0
 extra1 = 0
 extra2 = 0
 
-st.divider()
+st.write("---")
 
 # -------- PREDICTION --------
 if st.button("🔍 Predict Churn"):
 
-    # Create full input (12 features)
     input_data = np.array([[
         age,
         watch_hours,
@@ -62,37 +61,55 @@ if st.button("🔍 Predict Churn"):
         extra2
     ]])
 
-    # Scale numeric features (first 5 only)
+    # Scale numeric features
     input_data[:, :5] = scaler.transform(input_data[:, :5])
 
-    # Prediction
     prediction = model.predict(input_data)[0][0]
-    probability = prediction * 100
+    probability = float(prediction) * 100
 
-    st.divider()
+    st.write("---")
     st.subheader("📊 Prediction Result")
 
-    # -------- METRICS --------
-    col1, col2, col3 = st.columns(3)
+    # -------- PROBABILITY --------
+    st.metric("Churn Probability", f"{probability:.2f}%")
+    st.progress(int(probability))
 
-    col1.metric("Churn Probability", f"{probability:.2f}%")
-
+    # -------- RISK LEVEL --------
     if probability > 70:
         risk = "🔴 High Risk"
+        message = "Immediate action required!"
     elif probability > 40:
         risk = "🟠 Medium Risk"
+        message = "Monitor user behavior closely."
     else:
         risk = "🟢 Low Risk"
+        message = "Customer is stable."
 
-    col2.metric("Risk Level", risk)
+    st.write(f"### Risk Level: {risk}")
+    st.info(message)
 
-    # Replace with your actual accuracy if needed
-    col3.metric("Model Accuracy", "88%")
+    st.write("---")
 
-    st.divider()
-
-    # -------- FINAL MESSAGE --------
+    # -------- FINAL RESULT --------
     if prediction > 0.5:
-        st.error("⚠️ This customer is likely to churn. Take action!")
+        st.error("⚠️ This customer is likely to churn.")
     else:
         st.success("✅ This customer is likely to stay.")
+
+    # -------- RECOMMENDATIONS --------
+    st.subheader("💡 Suggested Actions")
+    st.write("Raw prediction:", prediction)
+
+    if prediction > 0.5:
+        st.write("""
+        - Offer discounts or special plans  
+        - Send personalized recommendations  
+        - Improve engagement (notifications/emails)  
+        - Provide better content suggestions  
+        """)
+    else:
+        st.write("""
+        - Maintain engagement  
+        - Recommend trending content  
+        - Offer loyalty rewards  
+        """)
