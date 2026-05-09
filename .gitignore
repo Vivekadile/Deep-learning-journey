@@ -1,0 +1,41 @@
+venv/
+__pycache__/
+.ipynb_checkpoints/
+# Ignore datasets and large files
+data/
+*.zip
+*.csv
+*.h5
+*.pkl
+
+# Ignore virtual environment
+venv/
+
+# Python garbage
+__pycache__/
+*.pyc
+
+data/
+*.zip
+venv/
+__pycache__/
+
+# Dataset
+.keras/
+datasets/
+*.h5
+*.ckpt
+
+# Python
+__pycache__/
+venv/
+
+# Models
+*.h5
+
+# TensorBoard logs
+logs/
+notebooks/logs/
+
+# macOS garbage
+.DS_Store
